@@ -7,5 +7,5 @@ Run make to build a shared library, libVectorLoglessPairHMM.so
    `make`
 
 ## HOW TO RUN
-Add a command-line option -Djava.library.path=<dir> to GATK tools that use PairHMM (e.g., HaplotypeCaller and Mutec2)
-(<dir> is the directory where libVectorLoglessPairHMM.so was placed) 
+Add a command-line option -Djava.library.path=_dir_ to GATK tools that use PairHMM (e.g., HaplotypeCaller and Mutec2)
+(_dir_ is the directory where libVectorLoglessPairHMM.so was placed) 
