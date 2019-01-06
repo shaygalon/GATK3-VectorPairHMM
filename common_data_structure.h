@@ -5,6 +5,9 @@
 #if defined(__POWER8_VECTOR__)
 #include "power8.h"
 #endif
+#if defined(__aarch64__)
+#include "SSE2NEON.h"
+#endif
 
 #define CAT(X,Y) X####Y
 #define CONCAT(X,Y) CAT(X,Y)
@@ -95,7 +98,7 @@ struct ContextBase
         small = t;
       }
 
-      if (isinf(small) == -1 || isinf(big) == -1)
+      if (isinf(small) || isinf(big) )
         return big;
 
       NUMBER diff = big - small;

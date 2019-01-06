@@ -126,20 +126,31 @@
 #define SHIFT_HAP(__v1, __val)                  \
     __v1 = _mm_insert_epi32(_mm_slli_si128(__v1, 4), __val.i, 0)
 
+//SG: This is not converting 128 to 256, misleading nomenclature or bad code?
 #define VEC_CVT_128_256(__v1)                   \
     _mm_cvtepi32_pd(__v1)
 
 #define VEC_SET1_VAL(__val)                     \
     _mm_set1_pd(__val)
 
+#if defined(__aarch64__)
+#define VEC_POPCVT_CHAR(__ch)                   \
+    _mm_cvtepi32_high_pd(_mm_set1_epi32(__ch))
+#else
 #define VEC_POPCVT_CHAR(__ch)                   \
     _mm_cvtepi32_pd(_mm_set1_epi32(__ch))
+#endif
 
 #define VEC_SET_LSE(__val)                      \
     _mm_set_pd(zero, __val);
 
+#if defined(__aarch64__)
+#define VEC_LDPOPCVT_CHAR(__addr)               \
+    vcvt_f64_f32(vld1_s32((const int32_t *)__addr))
+#else
 #define VEC_LDPOPCVT_CHAR(__addr)               \
     _mm_cvtepi32_pd(_mm_loadu_si128((__m128i const *)__addr))
+#endif
 
 #define VEC_SSE_TO_AVX(__vsLow, __vsHigh, __vdst)       \
     __vdst = _mm_castsi128_pd(_mm_set_epi64(__vsHigh, __vsLow))

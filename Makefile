@@ -23,7 +23,7 @@
 #
 
 arch=$(shell uname -m)
-ifeq ($(arch),ppc64le)
+ifeq ($(arch),aarch64)
 USE_GCC=1
 DISABLE_FTZ=1
 endif
@@ -34,7 +34,7 @@ endif
 #CFLAGS=-O2 -std=c++11 -W -Wall -march=corei7-avx -Wa,-q            -pedantic $(OMPCFLAGS) -Wno-unknown-pragmas
 #CFLAGS=-O2             -W -Wall -march=corei7 -mfpmath=sse -msse4.2 -pedantic $(OMPCFLAGS) -Wno-unknown-pragmas
 
-JRE_HOME?=/usr/lib/jvm/default-java/jre
+JRE_HOME?=/usr/lib/jvm/java-8-oracle/jre
 JNI_COMPILATION_FLAGS=-D_REENTRANT -fPIC -I${JRE_HOME}/../include -I${JRE_HOME}/../include/linux
 
 #COMMON_COMPILATION_FLAGS=$(JNI_COMPILATION_FLAGS) -O3 -W -Wall -pedantic $(OMPCFLAGS) -Wno-unknown-pragmas
@@ -62,8 +62,17 @@ endif
   AVX_FLAGS=
   SSE41_FLAGS=
 else
-  AVX_FLAGS=-mavx
-  SSE41_FLAGS=-msse4.1
+  ifeq ($(arch),aarch64)
+   C_COMPILER?=gcc
+   CPP_COMPILER?=g++
+   COMMON_COMPILATION_FLAGS+=-mcpu=native -fopenmp
+   OMPLDFLAGS=-lgomp
+   AVX_FLAGS=
+   SSE41_FLAGS=
+  else
+   AVX_FLAGS=-mavx
+   SSE41_FLAGS=-msse4.1
+  endif
 endif
   COMMON_COMPILATION_FLAGS+=-Wno-char-subscripts
 else
@@ -94,7 +103,7 @@ DEPDIR=.deps
 DF=$(DEPDIR)/$(*).d
 
 #Common across libJNI and sandbox
-ifeq ($(arch),ppc64le)
+ifeq ($(arch),aarch64)
 COMMON_SOURCES=utils.cc baseline.cc sse_function_instantiations.cc LoadTimeInitializer.cc
 else
 COMMON_SOURCES=utils.cc avx_function_instantiations.cc baseline.cc sse_function_instantiations.cc LoadTimeInitializer.cc
@@ -120,7 +129,7 @@ SSE_OBJECTS=$(SSE_SOURCES:.cc=.o)
 $(NO_VECTOR_OBJECTS): CXXFLAGS=$(COMMON_COMPILATION_FLAGS)
 $(AVX_OBJECTS): CXXFLAGS=$(COMMON_COMPILATION_FLAGS) $(AVX_FLAGS)
 $(SSE_OBJECTS): CXXFLAGS=$(COMMON_COMPILATION_FLAGS) $(SSE41_FLAGS)
-ifeq ($(arch),ppc64le)
+ifeq ($(arch),aarch64)
 OBJECTS=$(NO_VECTOR_OBJECTS) $(SSE_OBJECTS)
 else
 OBJECTS=$(NO_VECTOR_OBJECTS) $(AVX_OBJECTS) $(SSE_OBJECTS)

@@ -30,6 +30,10 @@
 #include <altivec.h>
 #include "power8.h"
 #endif
+#if defined(__aarch64__)
+#include "SSE2NEON.h"
+#endif
+#define __m128d __m128
 #include "headers.h"
 
 #define ALIGNED __attribute__((aligned(32)))
